@@ -5,16 +5,6 @@ Teal II x6
 DJI x14
 
 
-
-Each box runs:
-1. ZeroTierOne (need to develop interface for access management)
-2. 
-
-# Security
-Streams are not encrypted.
-All packets are encryptede
-
-
 # Static IP Architecture
 Naming SOP = Acquatic Mammals
 Muskrat[1 - 14] = DJI (20 series)
