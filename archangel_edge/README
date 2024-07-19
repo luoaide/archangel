@@ -1,0 +1,6 @@
+# RUNNING
+"ZEROTIER WORKAROUND FOR USING INSIDE DOCKER.
+docker run -it --rm \
+--cap-add=NET_ADMIN \
+--cap-add=SYS_ADMIN \
+--device=/dev/net/tun centos:7 [... command ...]"

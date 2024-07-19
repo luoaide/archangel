@@ -1,0 +1,18 @@
+# RUNNING
+"ZEROTIER WORKAROUND FOR USING INSIDE DOCKER.
+docker run -it --rm \
+--cap-add=NET_ADMIN \
+--cap-add=SYS_ADMIN \
+--device=/dev/net/tun centos:7 [... command ...]"
+
+
+# Server Setup
+
+Run all my http servers at 8080 and only on locahost
+
+Then have nginx running as a reverse proxy in front of it... visible on 10.173.0.1 and port 80 (443 if I feel fancy)
+
+Deploying flask app with Gunicorn and nginx
+
+pip install gunicorn
+gunicorn -w 4 'app:app'

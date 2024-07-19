@@ -1,0 +1,75 @@
+# ARCHANGEL Edge Node Dockerfile
+# This contains all the configuration needed to run a container on edge hardware
+# to join and contribute to the ARCHANGEL network.
+
+FROM ubuntu:20.04
+
+# Environment Variables
+ENV ZEROTIER_NETWORK=81df17ee36bf1ee1
+ENV CALLSIGN=beaver2
+
+# Create the archangel user and add him to the zerotier-one group
+RUN useradd archangel
+WORKDIR /home/archangel
+
+USER root
+
+
+##### INSTALL COMPONENTS ##### (as root)
+
+## Get Tools
+RUN apt-get -y update \
+    && apt-get -y install curl
+
+## 1. INSTALL ZEROTIER-ONE
+# allow members of the zerotier-one group to use the zerotier-cli utility by granting the group
+# access to the authtoken.secret
+RUN curl -s https://install.zerotier.com | bash \
+    && chmod 660 /var/lib/zerotier-one/authtoken.secret \
+    && zerotier-cli join $ZEROTIER_NETWORK
+
+## 2. INSTALL MEDIAMTX
+# Make archangel user the owner of all mediamtx files and grant only the owner permission to run
+# mediamtx and edit the configuration file
+RUN wget https://github.com/bluenviron/mediamtx/releases/download/v1.8.3/mediamtx_v1.8.3_linux_amd64.tar.gz \
+    && tar -xvzf mediamtx_v1.8.3_linux_amd64.tar.gz \
+    && rm mediamtx_v1.8.3_linux_amd64.tar.gz \
+    && chown archangel:archangel ./mediamtx \
+    && chown archangel:archangel ./mediamtx.yml \
+    && chmod 700 mediamtx \
+    && chmod 700 mediamtx.yml
+
+## 3. DNSMASQ
+RUN apt-get update \
+    && apt-get install dnsmasq \
+    && apt-get clean \
+    && apt-get install dnsmasq
+
+##### LOAD CONFIGURATION FILES ##### (as root)
+# Copy ARCHANGEL configuration files into the Image
+# mediamtx.conf         : Contains the configuration for mediamtx and the path information
+# announceStream.sh     : Makes an API call to webserver.archangel
+# unannounceStream.sh   : Makes an API call to webserver.archangel
+
+# Replace the generic mediamtx.conf with the custom ARCHANGEL configuration
+RUN rm mediamtx.yml
+COPY ./mediamtx.yml .
+COPY ./announceStream.sh .
+RUN sudo chmod 774 ~/announceStream.sh
+COPY ./unannounceStream.sh .
+RUN sudo chmod 774 ~/unannounceStream.sh
+COPY ./start-archangel.sh .
+RUN sudo chmod 774 start-archangel.sh
+
+# Expose the ports
+
+# Block unwanted traffic -- REFINE
+# RUN ufw dissalow all \
+#     && sudo ufw allow 9993
+
+# Switch to the tightly priviledged archangel user
+RUN usermod -a -G zerotier-one archangel
+USER archangel
+
+# Run ARCHANGEL Services
+CMD ["start-archangel.sh"]

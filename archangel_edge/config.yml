@@ -1,0 +1,9 @@
+# This contains high-level configuration details for docker container at creation time.
+
+node:
+    name:
+    ip:
+    description:
+
+zerotier:
+    network-address: 81df17ee36bf1ee1
