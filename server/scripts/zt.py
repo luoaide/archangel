@@ -3,7 +3,7 @@
 import requests 
 import json
 
-ZT_AUTH_TOKEN = "l0lwe4yv9r2tlvr1lswzxza2"
+ZT_AUTH_TOKEN = ""
 
 ###### APIs for ZTO Network Controller
 def getAllDevices(networkID):
